@@ -1,1 +1,829 @@
-Test
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐬🦊 SOFI_FOX🦊🍫 — Мои соцсети</title>
+  
+  <!-- Google-шрифты: Outfit и Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Стили Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Иконки FontAwesome для логотипов брендов -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            title: ['Outfit', 'sans-serif'],
+            body: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Пользовательский скроллбар */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #231109;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ea580c;
+      border-radius: 9999px;
+    }
+
+    html, body {
+      overscroll-behavior-y: contain;
+    }
+
+    /* Цветовая палитра */
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #381a10;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.45), transparent 55%),
+        radial-gradient(circle at 15% 35%, rgba(217, 119, 6, 0.32), transparent 45%),
+        radial-gradient(circle at 85% 65%, rgba(194, 65, 12, 0.36), transparent 50%),
+        radial-gradient(circle at 50% 100%, rgba(245, 158, 11, 0.28), transparent 60%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #ffedd5;
+      overflow-x: hidden;
+    }
+
+    /* Холст с летающими искорками */
+    #ember-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Тёплые карточки с эффектом глассморфизма */
+    .glass-card {
+      background: linear-gradient(135deg, rgba(82, 38, 22, 0.72) 0%, rgba(53, 22, 12, 0.82) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(253, 186, 116, 0.30);
+      box-shadow: 0 10px 25px -8px rgba(35, 13, 6, 0.55), inset 0 1px 1px 0 rgba(255, 237, 213, 0.22);
+      transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      transform: translateY(-3px) scale(1.012);
+      border-color: rgba(251, 146, 60, 0.85);
+      background: linear-gradient(135deg, rgba(105, 48, 28, 0.85) 0%, rgba(68, 28, 16, 0.95) 100%);
+      box-shadow: 0 16px 36px -8px rgba(249, 115, 22, 0.45), inset 0 1px 2px 0 rgba(255, 255, 255, 0.35);
+    }
+
+    .glass-card:active {
+      transform: translateY(0px) scale(0.99);
+    }
+
+    /* Круглый значок стрелки и подъём карточки при наведении */
+    .arrow-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 9999px;
+      background: rgba(45, 19, 11, 0.65);
+      border: 1px solid rgba(253, 186, 116, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    .glass-card:hover .arrow-badge {
+      background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+      border-color: rgba(255, 237, 213, 0.7);
+      box-shadow: 0 0 16px rgba(249, 115, 22, 0.85);
+    }
+
+    .arrow-svg {
+      width: 14px;
+      height: 14px;
+      stroke: #fed7aa;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s ease;
+    }
+
+    .glass-card:hover .arrow-svg {
+      stroke: #ffffff;
+      transform: translate(2px, -2px);
+    }
+
+    /* Стилизация точных эмодзи Telegram*/
+    .tg-emoji {
+      display: inline-block;
+      vertical-align: -0.2em;
+      object-fit: contain;
+      user-select: none;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    /* Свечение и пульсация */
+    .fox-title-glow {
+      text-shadow: 0 0 22px rgba(251, 146, 60, 0.7), 0 0 45px rgba(234, 88, 12, 0.38);
+    }
+
+    @keyframes foxGlowPulse {
+      0%, 100% {
+        box-shadow: 0 0 25px rgba(249, 115, 22, 0.6), inset 0 0 15px rgba(251, 146, 60, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 45px rgba(249, 115, 22, 0.9), inset 0 0 25px rgba(251, 146, 60, 0.65);
+      }
+    }
+
+    .avatar-glow-ring {
+      animation: foxGlowPulse 3.5s infinite ease-in-out;
+    }
+
+    /* Каскадная анимация плавного появления */
+    @keyframes smoothFadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(22px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stagger-in {
+      opacity: 0;
+      animation: smoothFadeInUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: calc(var(--delay, 0) * 0.05s + 0.1s);
+    }
+
+    /* Кастомное обновление потягиванием вниз для мобильных (Pull-To-Refresh) */
+    #ptr-container {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -100%);
+      z-index: 60;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="relative flex flex-col items-center justify-between min-h-screen px-4 py-8 md:py-12 selection:bg-orange-600 selection:text-white">
+
+  <!-- Индикатор обновления страницы потягиванием вниз -->
+  <div id="ptr-container" class="flex flex-col items-center pt-3">
+    <div id="ptr-icon-box" class="w-11 h-11 rounded-full bg-orange-950/95 border border-orange-400/70 shadow-2xl flex items-center justify-center text-orange-400 backdrop-blur-md">
+      <i id="ptr-icon" class="fa-solid fa-arrow-rotate-right text-base transition-transform duration-200"></i>
+    </div>
+  </div>
+
+  <!-- Фоновый эффект парящих искорок -->
+  <canvas id="ember-canvas"></canvas>
+
+  <!-- Всплывающее уведомление (при копировании ссылки) -->
+  <div id="toast" class="fixed top-6 z-50 transform -translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-stone-900/95 text-orange-200 border border-orange-500/50 px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md">
+    <i class="fa-solid fa-check text-orange-400 text-lg"></i>
+    <span id="toast-text" class="text-sm font-semibold tracking-wide">Ссылка скопирована!</span>
+  </div>
+
+  <!-- Главный контейнер -->
+  <main class="relative z-10 w-full max-w-lg mx-auto flex flex-col items-center">
+
+    <!-- Верхняя панель действий: Поделиться и QR-код -->
+    <div class="w-full flex justify-end gap-2.5 mb-3 px-2 stagger-in" style="--delay: 1;">
+      <button onclick="copyCurrentPageUrl()" title="Поделиться страницей" class="p-2.5 rounded-full bg-orange-950/60 border border-orange-400/40 text-orange-200 hover:text-white hover:bg-orange-800/70 hover:border-orange-300 transition-all shadow-md active:scale-95">
+        <i class="fa-solid fa-share-nodes text-base"></i>
+      </button>
+      <button onclick="toggleQrModal()" title="QR-код страницы" class="p-2.5 rounded-full bg-orange-950/60 border border-orange-400/40 text-orange-200 hover:text-white hover:bg-orange-800/70 hover:border-orange-300 transition-all shadow-md active:scale-95">
+        <i class="fa-solid fa-qrcode text-base"></i>
+      </button>
+    </div>
+
+    <!-- Секция шапки профиля -->
+    <header class="flex flex-col items-center text-center mb-7 w-full stagger-in" style="--delay: 2;">
+      
+      <!-- Аватарка со светящейся рамкой -->
+      <div class="relative group mb-4">
+        <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-200 avatar-glow-ring transition-transform duration-300 group-hover:scale-105">
+          <div class="w-full h-full rounded-full overflow-hidden bg-orange-950 border-2 border-orange-900/80">
+            <!-- Вставьте фото аватара в src="..." -->
+            <img 
+              id="avatar-img"
+              src="photoS.png" 
+              alt="SOFI_FOX avatar" 
+              class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+              onerror="this.src='https://placehold.co/400x400/381a10/fed7aa?text=SOFI_FOX'"
+            />
+          </div>
+        </div>
+
+        <!-- Значок верификации / милая лапка -->
+        <div class="absolute bottom-1 right-1 bg-gradient-to-r from-orange-600 to-amber-500 text-white p-1.5 rounded-full shadow-lg border border-orange-200/50 flex items-center justify-center">
+          <i class="fa-solid fa-paw text-xs text-white"></i>
+        </div>
+      </div>
+
+      <!-- Заголовок с точными эмодзи Apple -->
+      <h1 class="font-title text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2.5 flex items-center justify-center flex-wrap gap-1.5 fox-title-glow">
+        <!-- 🐬 Дельфин (TG/Apple: 1f42c) -->
+        <img class="tg-emoji w-7 h-7 sm:w-8 sm:h-8" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f42c.png" alt="🐬" />
+        <!-- 🦊 Лиса (TG/Apple: 1f98a) -->
+        <img class="tg-emoji w-7 h-7 sm:w-8 sm:h-8" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f98a.png" alt="🦊" />
+        
+        <span class="bg-gradient-to-r from-amber-100 via-orange-200 to-amber-300 bg-clip-text text-transparent px-1 font-black">
+          SOFI_FOX
+        </span>
+        
+        <!-- 🦊 Лиса (TG/Apple: 1f98a) -->
+        <img class="tg-emoji w-7 h-7 sm:w-8 sm:h-8" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f98a.png" alt="🦊" />
+        <!-- 🍫 Шоколад (TG/Apple: 1f36b) -->
+        <img class="tg-emoji w-7 h-7 sm:w-8 sm:h-8" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f36b.png" alt="🍫" />
+      </h1>
+
+      <!-- Описание профиля / Био -->
+      <p class="text-orange-100/90 text-sm sm:text-base max-w-sm font-medium leading-relaxed mb-4">
+        Добро пожаловать в лисий уголок! Выбирай платформу и подписывайся, чтобы не потерять 
+        <img class="tg-emoji w-4 h-4 ml-1" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/2728.png" alt="✨" />
+      </p>
+
+      <!-- Вкладки быстрой навигации по категориям -->
+      <div class="flex flex-wrap items-center justify-center gap-2 mt-1">
+        <button onclick="filterLinks('all', this)" class="cat-pill active-pill px-3.5 py-1 text-xs font-semibold rounded-full border border-orange-500/40 bg-orange-600/30 text-orange-200 hover:bg-orange-600/50 transition">
+          Все сети
+        </button>
+        <button onclick="filterLinks('insta', this)" class="cat-pill px-3.5 py-1 text-xs font-semibold rounded-full border border-orange-500/20 bg-orange-950/40 text-orange-300/80 hover:bg-orange-600/30 hover:text-white transition">
+          Instagram
+        </button>
+        <button onclick="filterLinks('tiktok', this)" class="cat-pill px-3.5 py-1 text-xs font-semibold rounded-full border border-orange-500/20 bg-orange-950/40 text-orange-300/80 hover:bg-orange-600/30 hover:text-white transition">
+          TikTok
+        </button>
+        <button onclick="filterLinks('video', this)" class="cat-pill px-3.5 py-1 text-xs font-semibold rounded-full border border-orange-500/20 bg-orange-950/40 text-orange-300/80 hover:bg-orange-600/30 hover:text-white transition">
+          Другое
+        </button>
+      </div>
+
+    </header>
+
+    <!-- Список соцсетей (порядок от 1 до 10 с каскадной анимацией появления) -->
+    <section class="w-full flex flex-col gap-3.5" id="links-container">
+
+      <!-- ========================================== -->
+      <!-- 1. LIKEE (ОСНОВНАЯ - ВЫДЕЛЕНА ПОЛОСОЙ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА LIKEE В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://l.likee.video/p/EWnTOU" target="_blank" rel="noopener noreferrer" 
+         data-cat="video"
+         style="--delay: 3;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group border-l-4 border-l-rose-500 stagger-in">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-pink-600 to-rose-500 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-solid fa-heart text-2xl text-white drop-shadow"></i>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>Likee</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f496.png" alt="💖" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Короткие видео, тренды и эфиры</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ========================================== -->
+      <!-- 2. TIKTOK (ОСНОВНОЙ) (ОСНОВНАЯ - ВЫДЕЛЕНА ПОЛОСОЙ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА ОСНОВНОЙ TIKTOK В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://www.tiktok.com/@sofa_foxx8" target="_blank" rel="noopener noreferrer" 
+         data-cat="tiktok"
+         style="--delay: 4;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group border-l-4 border-l-neutral-200 stagger-in">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-black border border-neutral-700 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-brands fa-tiktok text-2xl text-white"></i>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>TikTok</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f525.png" alt="🔥" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Основной аккаунт TikTok</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ========================================== -->
+      <!-- 3. INSTAGRAM (ОСНОВНОЙ) (ОСНОВНАЯ - ВЫДЕЛЕНА ПОЛОСОЙ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА ОСНОВНОЙ ИНСТАГРАМ В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://www.instagram.com/sofi_fox_offi" target="_blank" rel="noopener noreferrer" 
+         data-cat="insta"
+         style="--delay: 5;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group border-l-4 border-l-orange-500 stagger-in">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-tr from-yellow-500 via-red-500 to-pink-600 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-brands fa-instagram text-2xl"></i>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>Instagram</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/2b50.png" alt="⭐" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Основной аккаунт Instagram</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ========================================== -->
+      <!-- 4. TELEGRAM (КАНАЛ) (ОСНОВНАЯ - ВЫДЕЛЕНА ПОЛОСОЙ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА ВАШ ТЕЛЕГРАМ-КАНАЛ В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://t.me/sofi_foxxx" target="_blank" rel="noopener noreferrer" 
+         data-cat="video"
+         style="--delay: 6;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group border-l-4 border-l-sky-400 stagger-in">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-tr from-sky-600 to-cyan-400 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-brands fa-telegram text-2xl text-white"></i>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>Telegram Канал</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/2708-fe0f.png" alt="✈️" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Эксклюзивные новости и общение</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ========================================== -->
+      <!-- 5. YOUTUBE (ОСНОВНАЯ - ВЫДЕЛЕНА ПОЛОСОЙ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА YOUTUBE В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://youtube.com/@sofi_fox" target="_blank" rel="noopener noreferrer" 
+         data-cat="video"
+         style="--delay: 7;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group border-l-4 border-l-red-500 stagger-in">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-red-600 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-brands fa-youtube text-2xl text-white"></i>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>YouTube</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f3ac.png" alt="🎬" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Shorts</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ========================================== -->
+      <!-- 6. VK (ВКОНТАКТЕ) (ОСНОВНАЯ - ВЫДЕЛЕНА ПОЛОСОЙ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА VK В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://vk.ru/id555528285" target="_blank" rel="noopener noreferrer" 
+         data-cat="video"
+         style="--delay: 8;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group border-l-4 border-l-blue-500 stagger-in">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-600 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-brands fa-vk text-2xl text-white"></i>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>ВКонтакте</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f4ac.png" alt="💬" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Моя страница, посты, фото и общение</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ========================================== -->
+      <!-- 7. INSTAGRAM — СПОРТ (ЗНАЧОК ГАНТЕЛИ В УГЛУ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА ИНСТА-СПОРТ В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://www.instagram.com/sofa_fox_sport" target="_blank" rel="noopener noreferrer" 
+         data-cat="insta"
+         style="--delay: 9;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group stagger-in">
+        <div class="flex items-center gap-3.5">
+          <!-- Иконка Instagram со значком гантели -->
+          <div class="relative w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-tr from-amber-600 via-orange-600 to-red-500 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-brands fa-instagram text-2xl"></i>
+            <!-- Круглый значок: гантеля -->
+            <div class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-neutral-900 border border-orange-400/80 flex items-center justify-center shadow-md">
+              <i class="fa-solid fa-dumbbell text-[11px] text-orange-400"></i>
+            </div>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>Instagram Спорт</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f94a.png" alt="🥊" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Спортивный контент, тренировки</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ========================================== -->
+      <!-- 8. INSTAGRAM — БЬЮТИ (ЗНАЧОК ПОМАДЫ В УГЛУ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА ИНСТА-БЬЮТИ В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://www.instagram.com/sofifoxbeauty" target="_blank" rel="noopener noreferrer" 
+         data-cat="insta"
+         style="--delay: 10;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group stagger-in">
+        <div class="flex items-center gap-3.5">
+          <!-- Иконка Instagram со значком помады -->
+          <div class="relative w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-tr from-purple-600 via-pink-500 to-rose-400 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-brands fa-instagram text-2xl"></i>
+            <!-- Круглый значок: помада -->
+            <div class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-neutral-900 border border-pink-400/80 flex items-center justify-center shadow-md">
+              <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 fill-current text-pink-400">
+                <path d="M9 23c-.55 0-1-.45-1-1v-9c0-.55.45-1 1-1h6c.55 0 1 .45 1 1v9c0 .55-.45 1-1 1zm1-12c-.55 0-1-.45-1-1V5.25S11 3 11.75 1c1.08.67 2.17 1.33 2.71 2.83S15 7.67 15 10c0 .55-.45 1-1 1z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>Instagram Бьюти</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f484.png" alt="💄" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Макияжи, образы и эстетика</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ========================================== -->
+      <!-- 9. TIKTOK ИГРЫ (НАСТОЛЬНЫЕ) (ЗНАЧОК ИГРАЛЬНОГО КУБИКА В УГЛУ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА TIKTOK НАСТОЛКИ В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://www.tiktok.com/@sofafoxx5" target="_blank" rel="noopener noreferrer" 
+         data-cat="tiktok"
+         style="--delay: 11;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group stagger-in">
+        <div class="flex items-center gap-3.5">
+          <!-- Иконка TikTok со значком игрального кубика -->
+          <div class="relative w-12 h-12 rounded-xl flex items-center justify-center bg-black border border-neutral-700 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-brands fa-tiktok text-xl text-white"></i>
+            <!-- Круглый значок: игральный кубик -->
+            <div class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-neutral-900 border border-orange-400/80 flex items-center justify-center shadow-md">
+              <i class="fa-solid fa-dice text-xs text-orange-400"></i>
+            </div>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>TikTok Игры</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f3b2.png" alt="🎲" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Настольные игры</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ========================================== -->
+      <!-- 10. TIKTOK БЬЮТИ (ЗНАЧОК ПОМАДЫ В УГЛУ) -->
+      <!-- ВСТАВЬТЕ ССЫЛКУ НА TIKTOK БЬЮТИ В href="..." -->
+      <!-- ========================================== -->
+      <a href="https://www.tiktok.com/@sofifox.beauty" target="_blank" rel="noopener noreferrer" 
+         data-cat="tiktok"
+         style="--delay: 12;"
+         class="link-card glass-card rounded-2xl p-4 flex items-center justify-between group stagger-in">
+        <div class="flex items-center gap-3.5">
+          <!-- Иконка TikTok со значком помады -->
+          <div class="relative w-12 h-12 rounded-xl flex items-center justify-center bg-black border border-neutral-700 text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-brands fa-tiktok text-xl text-white"></i>
+            <!-- Круглый значок: помада -->
+            <div class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-neutral-900 border border-pink-400/80 flex items-center justify-center shadow-md">
+              <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 fill-current text-pink-400">
+                <path d="M9 23c-.55 0-1-.45-1-1v-9c0-.55.45-1 1-1h6c.55 0 1 .45 1 1v9c0 .55-.45 1-1 1zm1-12c-.55 0-1-.45-1-1V5.25S11 3 11.75 1c1.08.67 2.17 1.33 2.71 2.83S15 7.67 15 10c0 .55-.45 1-1 1z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5 font-title font-bold text-base text-white group-hover:text-orange-300 transition">
+              <span>TikTok Бьюти</span>
+              <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f484.png" alt="💄" />
+            </div>
+            <p class="text-xs text-orange-300/70 font-medium">Макияжи, бьюти туториалы</p>
+          </div>
+        </div>
+        <div class="arrow-badge">
+          <svg class="arrow-svg" viewBox="0 0 24 24">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </div>
+      </a>
+
+    </section>
+
+    <!-- Лисий подвал и копирайт -->
+    <footer class="mt-10 mb-4 text-center stagger-in" style="--delay: 13;">
+      <div class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-orange-950/50 border border-orange-400/30 text-xs text-orange-200 mb-3 shadow-sm">
+        <span>Создано с лисьим теплом</span>
+        <img class="tg-emoji w-4 h-4" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f98a.png" alt="🦊" />
+      </div>
+      <p class="text-[11px] text-orange-300/60">
+        &copy; 2026 SOFI_FOX. Все права защищены.
+      </p>
+    </footer>
+
+  </main>
+
+  <!-- Модальное окно с QR-кодом -->
+  <div id="qr-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300 p-4">
+    <div class="relative w-full max-w-xs bg-stone-900 border border-orange-400/50 rounded-3xl p-6 text-center shadow-2xl flex flex-col items-center">
+      <button onclick="toggleQrModal()" class="absolute top-4 right-4 text-orange-300 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center justify-center gap-1.5 mb-2">
+        <img class="tg-emoji w-5 h-5" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f98a.png" alt="🦊" />
+        <span class="font-title font-bold text-white text-lg">QR Код</span>
+      </div>
+      <p class="text-xs text-orange-200/80 mb-4">Наведите камеру смартфона, чтобы открыть визитку</p>
+
+      <!-- Динамическое изображение генератора QR-кода -->
+      <div class="p-3 bg-white rounded-2xl shadow-inner mb-4">
+        <img id="qr-image" src="" alt="QR Code" class="w-44 h-44 object-contain">
+      </div>
+
+      <button onclick="copyCurrentPageUrl()" class="w-full py-2.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-xs tracking-wide transition flex items-center justify-center gap-2 shadow-lg">
+        <i class="fa-solid fa-copy"></i>
+        Скопировать ссылку
+      </button>
+    </div>
+  </div>
+
+  <!-- Интерактивная логика JavaScript -->
+  <script>
+    // Анимация летающих искорок на холсте
+    (function initEmbers() {
+      const canvas = document.getElementById('ember-canvas');
+      const ctx = canvas.getContext('2d');
+      let width = (canvas.width = window.innerWidth);
+      let height = (canvas.height = window.innerHeight);
+
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      const particleCount = 45;
+      const particles = [];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: Math.random() * 2.8 + 0.8,
+          speedY: -(Math.random() * 0.7 + 0.2),
+          speedX: (Math.random() - 0.5) * 0.4,
+          opacity: Math.random() * 0.7 + 0.2,
+          color: Math.random() > 0.4 ? 'rgba(251, 146, 60,' : 'rgba(234, 88, 12,',
+          flickerSpeed: Math.random() * 0.02 + 0.01,
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.y += p.speedY;
+          p.x += p.speedX;
+          p.opacity += Math.sin(Date.now() * p.flickerSpeed) * 0.01;
+
+          // Возврат частицы при вылете за верхний край
+          if (p.y < -10) {
+            p.y = height + 10;
+            p.x = Math.random() * width;
+          }
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `${p.color} ${Math.max(0.1, Math.min(0.9, p.opacity))})`;
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = '#f97316';
+          ctx.fill();
+        }
+
+        requestAnimationFrame(render);
+      }
+
+      render();
+    })();
+
+    // Мобильное обновление потягиванием вниз без конфликта со скроллом
+    (function initPullToRefresh() {
+      const ptr = document.getElementById('ptr-container');
+      const icon = document.getElementById('ptr-icon');
+      let startY = 0;
+      let currentY = 0;
+      let isPulling = false;
+      const pullThreshold = 75;
+
+      window.addEventListener('touchstart', (e) => {
+        if (window.scrollY === 0) {
+          startY = e.touches[0].clientY;
+          isPulling = true;
+          ptr.style.transition = 'none';
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isPulling || window.scrollY > 0) return;
+
+        currentY = e.touches[0].clientY;
+        const diff = currentY - startY;
+
+        if (diff > 0) {
+          // Эффект сопротивления при натяжении
+          const damped = Math.min(diff * 0.45, 95);
+          ptr.style.transform = `translate(-50%, ${damped}px)`;
+          icon.style.transform = `rotate(${damped * 4}deg)`;
+
+          if (damped >= pullThreshold * 0.45) {
+            icon.classList.add('text-amber-300');
+          } else {
+            icon.classList.remove('text-amber-300');
+          }
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchend', () => {
+        if (!isPulling) return;
+        isPulling = false;
+        
+        ptr.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        const diff = currentY - startY;
+
+        if (diff * 0.45 >= pullThreshold * 0.45 && window.scrollY === 0) {
+          ptr.style.transform = 'translate(-50%, 65px)';
+          icon.classList.add('fa-spin');
+          if (navigator.vibrate) navigator.vibrate(25);
+          setTimeout(() => {
+            window.location.reload();
+          }, 450);
+        } else {
+          ptr.style.transform = 'translate(-50%, -100%)';
+          icon.style.transform = 'rotate(0deg)';
+        }
+        startY = 0;
+        currentY = 0;
+      }, { passive: true });
+    })();
+
+    // Фильтрация карточек по категориям
+    function filterLinks(cat, targetBtn) {
+      const cards = document.querySelectorAll('.link-card');
+      const pills = document.querySelectorAll('.cat-pill');
+
+      pills.forEach(p => {
+        p.classList.remove('bg-orange-600/30', 'text-orange-200', 'border-orange-500/40');
+        p.classList.add('bg-orange-950/40', 'text-orange-300/80', 'border-orange-500/20');
+      });
+
+      const btn = targetBtn || event.currentTarget;
+      if (btn) {
+        btn.classList.add('bg-orange-600/30', 'text-orange-200', 'border-orange-500/40');
+        btn.classList.remove('bg-orange-950/40', 'text-orange-300/80');
+      }
+
+      cards.forEach(card => {
+        const itemCat = card.getAttribute('data-cat');
+        if (cat === 'all' || itemCat === cat) {
+          card.style.display = 'flex';
+          card.style.opacity = '1';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // Функция копирования ссылки с уведомлением
+    function copyCurrentPageUrl() {
+      const url = window.location.href;
+      
+      const tempInput = document.createElement('input');
+      tempInput.value = url;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast('Ссылка скопирована!');
+      } catch (err) {
+        showToast('Не удалось скопировать ссылку');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-text');
+      text.innerText = msg;
+      toast.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('-translate-y-24', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2600);
+    }
+
+    // Управление модальным окном QR-кода
+    function toggleQrModal() {
+      const modal = document.getElementById('qr-modal');
+      const qrImg = document.getElementById('qr-image');
+      const isOpen = !modal.classList.contains('pointer-events-none');
+
+      if (!isOpen) {
+        const currentUrl = encodeURIComponent(window.location.href);
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${currentUrl}&color=1c0803&bgcolor=ffffff`;
+        modal.classList.remove('pointer-events-none', 'opacity-0');
+        modal.classList.add('opacity-100');
+      } else {
+        modal.classList.add('pointer-events-none', 'opacity-0');
+        modal.classList.remove('opacity-100');
+      }
+    }
+  </script>
+</body>
+</html>
